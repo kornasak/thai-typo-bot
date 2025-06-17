@@ -9,7 +9,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import "dotenv/config";
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 keepAlive();
 
