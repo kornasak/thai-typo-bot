@@ -137,6 +137,16 @@ const client = new Client({
 
 client.on("ready", () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
+
+  client.user.setPresence({
+    activities: [
+      {
+        name: "vjkow,jvvd5k,z,wfh~",
+        type: 0, // 0 = Playing, 1 = Streaming, 2 = Listening, 3 = Watching, 5 = Competing
+      },
+    ],
+    status: "online", // online, idle, dnd, invisible
+  });
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
