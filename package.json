@@ -4,6 +4,10 @@
   "type": "module",
   "description": "Discord bot for English to Thai keyboard typo translation",
   "main": "index.js",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start": "node index.js"
   },
