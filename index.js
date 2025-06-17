@@ -142,9 +142,18 @@ const client = new Client({
 client.on("ready", () => {
   console.log(`✅ เข้าสู่ระบบด้วย ${client.user.tag}`);
 
-  let statusIndex = 0;
   const statuses = ["/translate", "vjkow,jvvd5k,z,wfh", "พร้อมแปลให้เสมอ"];
+  let statusIndex = 0;
 
+  // แสดง status ทันทีรอบแรก
+  client.user.setPresence({
+    activities: [{ name: `${statuses[statusIndex]} | V${pkg.version}`, type: 4 }],
+    status: "online",
+  });
+
+  statusIndex = (statusIndex + 1) % statuses.length;
+
+  // 👉 อัปเดต status ทุก 14 นาที 30 วินาที
   setInterval(() => {
     const status = statuses[statusIndex];
     client.user.setPresence({
