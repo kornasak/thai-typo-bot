@@ -5,6 +5,7 @@ import {
   Routes,
   SlashCommandBuilder,
   Events,
+  InteractionResponseFlags,
 } from "discord.js";
 import "dotenv/config";
 
@@ -144,12 +145,21 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   if (interaction.commandName === "translate") {
     // ดึงข้อความจาก option "ข้อความ"
-    const inputText = interaction.options.getString("ข้อความ");
+    const inputText = interaction.options.getString("text");
+
+    if (!inputText) {
+      await interaction.reply({
+        content: "❌ กรุณาใส่ข้อความที่ต้องการแปล",
+        flags: InteractionResponseFlags.Ephemeral,
+      });
+      return;
+    }
+
     const translated = convertEngToThai(inputText);
 
     await interaction.reply({
-      content: `✅ แปลข้อความ:\n\`\`\`\n${translated}\n\`\`\``,
-      ephemeral: false,
+      content: `✅ ข้อความแปลเป็นไทย:\n\`\`\`\n${translated}\n\`\`\``,
+      flags: InteractionResponseFlags.None, // แสดงผลปกติ ไม่ซ่อน
     });
   }
 });
