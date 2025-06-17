@@ -149,7 +149,7 @@ client.on("ready", () => {
       activities: [{ name: status, type: 4 }],
       status: "online",
     });
-  }, 290000);
+  }, 870000);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
