@@ -1,3 +1,4 @@
+import { keepAlive } from "./keepAlive.js";
 import {
   Client,
   GatewayIntentBits,
@@ -5,10 +6,13 @@ import {
   Routes,
   SlashCommandBuilder,
   Events,
+  EmbedBuilder,
 } from "discord.js";
 import "dotenv/config";
 
-// แผนที่การกดแป้นพิมพ์แบบ QWERTY -> แป้นพิมพ์ไทย
+keepAlive();
+
+// ✅ QWERTY -> แป้นพิมพ์ไทย
 const engToThaiMap = {
   1: "ๅ",
   2: "/",
@@ -33,7 +37,6 @@ const engToThaiMap = {
   ")": "๗",
   _: "๘",
   "+": "๙",
-
   q: "ๆ",
   w: "ไ",
   e: "ำ",
@@ -46,7 +49,6 @@ const engToThaiMap = {
   p: "ย",
   "[": "บ",
   "]": "ล",
-
   a: "ฟ",
   s: "ห",
   d: "ก",
@@ -58,7 +60,6 @@ const engToThaiMap = {
   l: "ส",
   ";": "ว",
   "'": "ง",
-
   z: "ผ",
   x: "ป",
   c: "แ",
@@ -69,7 +70,6 @@ const engToThaiMap = {
   ",": "ม",
   ".": "ใ",
   "/": "ฝ",
-
   Q: "๐",
   E: "ฎ",
   R: "ฑ",
@@ -90,7 +90,6 @@ const engToThaiMap = {
   K: "ษ",
   L: "ศ",
   ":": "ซ",
-
   C: "ฉ",
   V: "ฮ",
   B: "ฺ",
@@ -107,8 +106,8 @@ function convertEngToThai(input) {
     .join("");
 }
 
-// สมัครคำสั่งใหม่แบบมี string option
-const command = new SlashCommandBuilder()
+// ✅ ลงทะเบียนคำสั่ง
+const translateCommand = new SlashCommandBuilder()
   .setName("translate")
   .setDescription("แปลข้อความที่พิมพ์ผิดจากภาษาอังกฤษเป็นภาษาไทย")
   .addStringOption((option) =>
@@ -118,15 +117,19 @@ const command = new SlashCommandBuilder()
       .setRequired(true),
   );
 
+const helpCommand = new SlashCommandBuilder()
+  .setName("help")
+  .setDescription("แสดงรายการคำสั่งของบอท");
+
 const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 
 console.log("⏳ เริ่มลงทะเบียนคำสั่ง...");
 await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), {
-  body: [command.toJSON()],
+  body: [translateCommand.toJSON(), helpCommand.toJSON()],
 });
 console.log("✅ ลงทะเบียนคำสั่งเสร็จเรียบร้อย");
 
-// เริ่มบอท
+// ✅ เริ่มบอท
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -137,13 +140,22 @@ const client = new Client({
 
 client.on("ready", () => {
   console.log(`✅ เข้าสู่ระบบด้วย ${client.user.tag}`);
+
+  const statuses = ["/translate", "vjkow,jvvd5k,z,wfh", "พร้อมแปลให้เสมอ"];
+
+  setInterval(() => {
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    client.user.setPresence({
+      activities: [{ name: status, type: 4 }],
+      status: "online",
+    });
+  }, 290000);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === "translate") {
-    // ดึงข้อความจาก option "ข้อความ"
     const inputText = interaction.options.getString("ข้อความ");
 
     if (!inputText) {
@@ -159,6 +171,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
     await interaction.reply({
       content: `✅ ข้อความแปลเป็นไทย:\n\`\`\`\n${translated}\n\`\`\``,
     });
+  } else if (interaction.commandName === "help") {
+    const embed = new EmbedBuilder()
+      .setTitle("คำสั่งของ ThaiTypoBot")
+      .setColor("#00AAFF")
+      .setDescription("ตัวอย่างคำสั่งและวิธีใช้บอท")
+      .addFields(
+        {
+          name: "/translate <ข้อความ>",
+          value: "แปลข้อความพิมพ์ผิดจากอังกฤษเป็นไทย",
+        },
+        { name: "/help", value: "แสดงรายการคำสั่งของบอท" },
+      );
+    await interaction.reply({ embeds: [embed], ephemeral: true });
   }
 });
 
