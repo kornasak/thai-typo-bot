@@ -1,17 +1,14 @@
-import Discord from "discord.js";
-import "dotenv/config";
-
-const {
+import {
   Client,
   GatewayIntentBits,
   REST,
   Routes,
   SlashCommandBuilder,
   Events,
-  InteractionResponseFlags,
-} = Discord;
+} from "discord.js";
+import "dotenv/config";
 
-// แผนที่ QWERTY -> ไทย
+// แผนที่การกดแป้นพิมพ์แบบ QWERTY -> แป้นพิมพ์ไทย
 const engToThaiMap = {
   1: "ๅ",
   2: "/",
@@ -110,7 +107,7 @@ function convertEngToThai(input) {
     .join("");
 }
 
-// สมัครคำสั่งใหม่
+// สมัครคำสั่งใหม่แบบมี string option
 const command = new SlashCommandBuilder()
   .setName("translate")
   .setDescription("แปลข้อความที่พิมพ์ผิดจากภาษาอังกฤษเป็นภาษาไทย")
@@ -129,6 +126,7 @@ await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), {
 });
 console.log("✅ ลงทะเบียนคำสั่งเสร็จเรียบร้อย");
 
+// เริ่มบอท
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -145,12 +143,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === "translate") {
+    // ดึงข้อความจาก option "ข้อความ"
     const inputText = interaction.options.getString("ข้อความ");
 
     if (!inputText) {
       await interaction.reply({
         content: "❌ กรุณาใส่ข้อความที่ต้องการแปล",
-        flags: InteractionResponseFlags.Ephemeral,
+        ephemeral: true,
       });
       return;
     }
@@ -159,7 +158,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     await interaction.reply({
       content: `✅ ข้อความแปลเป็นไทย:\n\`\`\`\n${translated}\n\`\`\``,
-      flags: InteractionResponseFlags.None,
     });
   }
 });
