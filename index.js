@@ -9,6 +9,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import "dotenv/config";
+import pkg from "./package.json" assert { type: "json" };
 
 keepAlive();
 
@@ -141,14 +142,16 @@ const client = new Client({
 client.on("ready", () => {
   console.log(`✅ เข้าสู่ระบบด้วย ${client.user.tag}`);
 
+  let statusIndex = 0;
   const statuses = ["/translate", "vjkow,jvvd5k,z,wfh", "พร้อมแปลให้เสมอ"];
 
   setInterval(() => {
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const status = statuses[statusIndex];
     client.user.setPresence({
-      activities: [{ name: status, type: 4 }],
+      activities: [{ name: `${status} | V${pkg.version}`, type: 4 }],
       status: "online",
     });
+    statusIndex = (statusIndex + 1) % statuses.length;
   }, 870000);
 });
 
